@@ -259,3 +259,113 @@ notificationStyles.textContent = `
     }
 `;
 document.head.appendChild(notificationStyles);
+
+// Fonctions de tracking Google Analytics
+function trackWhatsAppClick() {
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'whatsapp_click', {
+            'event_category': 'contact',
+            'event_label': 'whatsapp_float_button'
+        });
+    }
+}
+
+function trackPhoneClick() {
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'phone_click', {
+            'event_category': 'contact',
+            'event_label': 'phone_number'
+        });
+    }
+}
+
+function trackEmailClick() {
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'email_click', {
+            'event_category': 'contact',
+            'event_label': 'email_address'
+        });
+    }
+}
+
+function trackFormSubmission() {
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'form_submission', {
+            'event_category': 'lead',
+            'event_label': 'contact_form'
+        });
+    }
+}
+
+function trackServiceClick(serviceName) {
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'service_click', {
+            'event_category': 'services',
+            'event_label': serviceName
+        });
+    }
+}
+
+// Modifier la fonction initContactForm pour inclure le tracking
+function initContactForm() {
+    const contactForm = document.getElementById('contactForm');
+    
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Récupération des données du formulaire
+            const formData = new FormData(contactForm);
+            const name = contactForm.querySelector('input[type="text"]').value;
+            const phone = contactForm.querySelector('input[type="tel"]').value;
+            const email = contactForm.querySelector('input[type="email"]').value;
+            const service = contactForm.querySelector('select').value;
+            const message = contactForm.querySelector('textarea').value;
+            
+            // Tracking Google Analytics
+            trackFormSubmission();
+            
+            // Simulation d'envoi
+            console.log('Demande de contact:', { name, phone, email, service, message });
+            
+            // Affichage d'un message de succès
+            showNotification('Merci pour votre message! Nous vous contacterons dans les plus brefs délais.', 'success');
+            
+            // Réinitialisation du formulaire
+            contactForm.reset();
+        });
+    }
+}
+
+// Ajouter le tracking aux liens de service
+function initServiceTracking() {
+    const serviceLinks = document.querySelectorAll('a[href="#contact"]');
+    serviceLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            const serviceName = this.closest('.service-card') ? 
+                this.closest('.service-card').querySelector('h3').textContent : 
+                'general_service';
+            trackServiceClick(serviceName);
+        });
+    });
+    
+    // Tracking des clics téléphone/email
+    const phoneLinks = document.querySelectorAll('a[href^="tel:"]');
+    const emailLinks = document.querySelectorAll('a[href^="mailto:"]');
+    
+    phoneLinks.forEach(link => {
+        link.addEventListener('click', trackPhoneClick);
+    });
+    
+    emailLinks.forEach(link => {
+        link.addEventListener('click', trackEmailClick);
+    });
+}
+
+// Mettre à jour l'initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    // ... autres initialisations
+    
+    // Ajouter le tracking des services
+    initServiceTracking();
+});
